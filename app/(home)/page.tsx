@@ -5,17 +5,23 @@ import HeroSection from '@/components/HeroSection'
 import PricingPage from '@/components/PricingPage'
 import { currentUser } from '@clerk/nextjs/server'
 import React from 'react'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 
 const HomePage = async () => {
-  const user = await currentUser()
+  // const user = await currentUser()
+  const { userId } = await auth()
+  if (!userId) {
+    redirect('/sign-in')
+  }
   const forms = await getForms()
   const totalFormsCreated = forms?.data?.length || 0 as number
-  const isSubscribed = await getUserSubscription(user?.id as string) as boolean
+  const isSubscribed = await getUserSubscription(userId as string) as boolean
 
   return (
     <div className='grid items-center justify-items-center min-h-screen p-8 gap-16 sm:p-20'>
 			<HeroSection totalForms={totalFormsCreated} isSubscribed={isSubscribed} />
-			<PricingPage userId={user?.id} />
+			<PricingPage userId={userId} />
 			<Footer />
 			
     </div>
